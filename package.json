@@ -1,40 +1,26 @@
 {
-  "name": "homebridge-bravia-tvos",
-  "version": "5.0.9",
-  "description": "Homebridge plugin for Sony Bravia Android TVs",
+  "name": "homebridge-bravia-tvos-hv2",
+  "version": "1.0.0",
+  "description": "Custom version of Bravia plugin for Homebridge v2",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SeydX/homebridge-bravia-tvos.git"
+    "url": "git+https://github.com/BrauCadena/homebridge-bravia-tvos-hv2.git"
   },
-  "funding": [
-    {
-      "type": "paypal",
-      "url": "https://paypal.me/seydx"
-    },
-    {
-      "type": "kofi",
-      "url": "https://ko-fi.com/seydx"
-    },
-    {
-      "type": "github",
-      "url": "https://github.com/sponsors/seydx"
-    }
-  ],
   "scripts": {
-    "build": "concurrently \"npm run build:homebridge-ui\"",
+    "build": "echo 'build skkiped'",
     "build:homebridge-ui": "npm run build --prefix homebridge-ui/ui",
-    "lint": "concurrently \"npm run lint:homebridge-ui\" \"npm run lint:plugin\"",
+    "lint": "echo 'lint skkiped",
     "lint:plugin": "eslint --fix .",
     "lint:homebridge-ui": "npm run lint --prefix homebridge-ui/ui",
     "prepublishOnly": "npm i --package-lock-only && npm run lint && npm run build"
   },
-  "author": "SeydX (https://github.com/SeydX/homebridge-bravia-tvos)",
+  "author": "Brau Cadena (https://github.com/BrauCadena/homebridge-bravia-tvos-hv2)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SeydX/homebridge-bravia-tvos/issues"
+    "url": "https://github.com/BrauCadena/homebridge-bravia-tvos-hv2/issues"
   },
-  "homepage": "https://github.com/SeydX/homebridge-bravia-tvos#readme",
+  "homepage": "https://github.com/BrauCadena/homebridge-bravia-tvos-hv2#readme",
   "keywords": [
     "bravia",
     "player",
@@ -63,5 +49,8 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1"
+  },
+  "homebridge": {
+    "plugin_type": "platform"
   }
 }

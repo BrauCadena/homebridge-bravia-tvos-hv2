@@ -1,0 +1,61 @@
+{
+  "name": "homebridge-bravia-tvos-hv2",
+  "version": "1.0.0",
+  "description": "Custom version of Bravia plugin for Homebridge v2",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeydX/homebridge-bravia-tvos.git"
+  },
+  "funding": [
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/seydx"
+    },
+    {
+      "type": "kofi",
+      "url": "https://ko-fi.com/seydx"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/seydx"
+    }
+  ],
+  "scripts": {
+    "build": "concurrently \"npm run build:homebridge-ui\"",
+    "build:homebridge-ui": "npm run build --prefix homebridge-ui/ui",
+    "lint": "concurrently \"npm run lint:homebridge-ui\" \"npm run lint:plugin\"",
+    "lint:plugin": "eslint --fix .",
+    "lint:homebridge-ui": "npm run lint --prefix homebridge-ui/ui",
+    "prepublishOnly": "npm i --package-lock-only && npm run lint && npm run build"
+  },
+  "author": "brauliocadena",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SeydX/homebridge-bravia-tvos/issues"
+  },
+  "homepage": "https://github.com/SeydX/homebridge-bravia-tvos#readme",
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "homebridge": ">02.0.0"
+  },
+  "dependencies": {
+    "@homebridge/plugin-ui-utils": "^0.0.19",
+    "@seydx/bravia": "^2.0.0-beta.21",
+    "fs-extra": "^10.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.15.8",
+    "@babel/eslint-parser": "7.15.8",
+    "@babel/eslint-plugin": "7.14.5",
+    "concurrently": "^6.5.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1"
+  }
+}
