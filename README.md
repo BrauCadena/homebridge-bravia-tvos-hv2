@@ -3,19 +3,12 @@
 </p>
 
 
-# homebridge-bravia-tvos v5
+# homebridge-bravia-tvos Homebridge 2.0
 
-[![npm](https://img.shields.io/npm/v/homebridge-bravia-tvos.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-bravia-tvos)
-[![npm](https://img.shields.io/npm/dt/homebridge-bravia-tvos.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-bravia-tvos)
-[![GitHub last commit](https://img.shields.io/github/last-commit/SeydX/homebridge-bravia-tvos.svg?style=flat-square)](https://github.com/SeydX/homebridge-bravia-tvos)
+[![npm](https://img.shields.io/npm/v/homebridge-bravia-tvos.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-bravia-tvos-hv2)
+[![npm](https://img.shields.io/npm/dt/homebridge-bravia-tvos.svg?style=flat-square)](https://www.npmjs.com/package/homebridge-bravia-tvos-hv2)
+[![GitHub last commit](https://img.shields.io/github/last-commit/SeydX/homebridge-bravia-tvos.svg?style=flat-square)](https://github.com/BrauCadena/homebridge-bravia-tvos-hv2)
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
-[![Discord](https://img.shields.io/discord/432663330281226270?color=728ED5&logo=discord&label=discord)](https://discord.gg/kqNCe2D)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&maxAge=2592000)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NP4T3KASWQLD8)
-
-**Creating and maintaining Homebridge plugins consume a lot of time and effort, if you would like to share your appreciation, feel free to "Star" or donate.**
-
-[Click here](https://github.com/SeydX) to review more of my plugins.
-
 
 ## Info
 
@@ -71,7 +64,7 @@ If you cannot use the custom user interface or want to edit the config.json manu
 To use the PIN authentication you must first install the bravia module:
 
 ``
-sudo npm i -g @seydx/bravia@beta
+sudo npm i -g @braucadena/bravia@beta
 ``
 
 And to be able to use the plugin with the PIN procedure your credentials must be created first.
@@ -81,7 +74,7 @@ You can create the credentials as follows:
 ``bravia pair <host> -p 80 -n MyTV``
 
 - \<host\>: The address of your Bravia TV _(eg 192.168.178.99)_
-- -n: Name for the app (Default `"@seydx/bravia"`)
+- -n: Name for the app (Default `"@braucadena/bravia"`)
 - -p: The port of your Bravia TV (Default: `80`)
 
 The PIN displayed on the TV must then be entered in the terminal. This will generate a credentials ``<Object>`` like this:
@@ -189,9 +182,6 @@ You need to put the PSK entered in your tv also in your config.json.
 
  ```
  
- See [Example Config](https://github.com/SeydX/homebridge-bravia-tvos/blob/beta/example-config.json) for a **FULL** config example.
-
- 
  ## Options General
 
 | **Attributes** | **Required** | **Usage** | **Default** | **Options** |
@@ -295,8 +285,8 @@ This plugin has been verified to work with the following apps on iOS 14:
 
 You can contribute to this homebridge plugin in following ways:
 
-- [Report issues](https://github.com/SeydX/homebridge-bravia-tvos/issues) and help verify fixes as they are checked in.
-- Review the [source code changes](https://github.com/SeydX/homebridge-bravia-tvos/pulls).
+- [Report issues](https://github.com/BrauCadena/homebridge-bravia-tvos-hv2/issues) and help verify fixes as they are checked in.
+- Review the [source code changes](https://github.com/BrauCadena/homebridge-bravia-tvos-hv2/pulls).
 - Contribute bug fixes.
 - Contribute changes to extend the capabilities
 
@@ -310,3 +300,8 @@ If you have any issues with the plugin or TV services then you can run homebridg
 ## Disclaimer
 
 All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.
+
+## 🙏 Acknowledgements
+
+This plugin is based on the excellent work of [SeydX](https://github.com/SeydX), author of the original project [homebridge-bravia-tvos](https://github.com/SeydX/homebridge-bravia-tvos).  
+Thank you for sharing your knowledge and for enriching the Homebridge ecosystem.

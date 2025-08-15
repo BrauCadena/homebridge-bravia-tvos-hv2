@@ -1,7 +1,8 @@
 {
   "name": "homebridge-bravia-tvos-hv2",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "Custom version of Bravia plugin for Homebridge v2",
+  "displayName": "Homebridge Bravia TVOS v2",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "bravia",
     "player",
     "homebridge",
+    "homebridgev2",
     "homebridge-plugin",
     "plugin",
     "tv",
@@ -51,6 +53,7 @@
     "prettier": "^2.4.1"
   },
   "homebridge": {
+    "name": "homebridge-bravia-tvos-hv2",	  
     "plugin_type": "platform"
   }
 }
