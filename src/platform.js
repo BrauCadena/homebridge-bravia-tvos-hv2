@@ -1,7 +1,8 @@
 'use strict';
 
 const logger = require('./utils/logger');
-const { version } = require('../../package.json'); // Nota: Asegúrate de que la ruta a package.json sea correcta según la estructura de tus carpetas
+const path = require('path');
+const { version } = require(path.resolve(__dirname, '../package.json'));
 const { generateConfig } = require('./utils/utils');
 
 //Accessories
