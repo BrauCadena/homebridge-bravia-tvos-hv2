@@ -34,7 +34,7 @@
   ],
   "engines": {
     "node": "^18.15.0 || ^20.9.0 || ^22.0.0",
-    "homebridge": "^2.0.0"
+    "homebridge": ">=1.6.0"
   },
   "dependencies": {
     "@homebridge/plugin-ui-utils": "^0.0.19",
@@ -50,9 +50,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
     "hap-nodejs": "^0.12.0",
-    "homebridge": "^2.0.0-beta.79",
-    "prettier": "^2.4.1"
+    "homebridge": "^2.0.0-beta.0"
   },
   "homebridge": {
     "name": "homebridge-bravia-tvos-hv2",
