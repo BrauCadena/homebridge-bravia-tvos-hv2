@@ -1,13 +1,14 @@
 'use strict';
 
 const logger = require('./utils/logger');
-const { version } = require('../package.json');
+const { version } = require('../../package.json'); // Nota: Asegúrate de que la ruta a package.json sea correcta según la estructura de tus carpetas
 const { generateConfig } = require('./utils/utils');
 
 //Accessories
 const { AccessorySetup, TelevisionAccessory } = require('./accessories/accessory');
 
-const PLUGIN_NAME = 'homebridge-bravia-tvos';
+// ¡AQUÍ ESTÁ EL CAMBIO IMPORTANTE! 
+const PLUGIN_NAME = 'homebridge-bravia-tvos-hv2';
 const PLATFORM_NAME = 'BraviaOSPlatform';
 
 var Accessory;
@@ -42,6 +43,7 @@ BraviaOSPlatform.prototype = {
       logger.info('Configuring new accessory...', device.name);
 
       const accessory = new Accessory(device.name, uuid);
+      // Esto está perfecto para HB 2.0
       accessory.category = this.api.hap.Categories.TELEVISION;
 
       this.setupAccessory(accessory, device);

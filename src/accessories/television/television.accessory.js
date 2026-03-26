@@ -132,12 +132,11 @@ class Accessory {
   }
 
   getService() {
-    //Service.Television
-    let televisionService = this.accessory.addService(
-      this.api.hap.Service.Television,
-      this.accessory.displayName,
-      this.accessory.context.config.subtype //television
-    );
+    const subtype = this.accessory.context.config.subtype || 'television';
+
+    // Homebridge 2.0 Best Practice: Always get first, then add if it doesn't exist
+    let televisionService = this.accessory.getServiceById(this.api.hap.Service.Television, subtype) 
+                         || this.accessory.addService(this.api.hap.Service.Television, this.accessory.displayName, subtype);
 
     televisionService
       .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, this.tvCache.name || this.accessory.displayName)
@@ -164,21 +163,22 @@ class Accessory {
       .getCharacteristic(this.api.hap.Characteristic.PowerModeSelection)
       .onSet((state) => this.handler.setRemoteKey(state, 'SETTINGS'));
 
+    // TargetMediaState is optional and can throw warnings in HB2 if the device doesn't support it natively,
+    // but we'll leave it as it shouldn't cause a fatal crash.
     televisionService
       .getCharacteristic(this.api.hap.Characteristic.TargetMediaState)
       .onSet((state) => this.handler.setRemoteKey(state, 'MEDIA'));
 
-    //Service.InputSource
+    // Service.InputSource
     this.inputs.forEach((input, index) => {
       const identifier = index + 1;
+      const inputSubtype = `${input.type}-${identifier}`;
 
       logger.debug(`Creating Input Source: ${input.inputName} (${identifier})`);
 
-      const InputService = this.accessory.addService(
-        this.api.hap.Service.InputSource,
-        input.inputName,
-        `${input.type}-${identifier}`
-      );
+      // HB 2.0 rule: get first, then add
+      let InputService = this.accessory.getServiceById(this.api.hap.Service.InputSource, inputSubtype)
+                      || this.accessory.addService(this.api.hap.Service.InputSource, input.inputName, inputSubtype);
 
       InputService.setCharacteristic(this.api.hap.Characteristic.Identifier, identifier)
         .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, input.inputName)
@@ -188,11 +188,14 @@ class Accessory {
         .setCharacteristic(this.api.hap.Characteristic.InputSourceType, input.inputSourceType)
         .setCharacteristic(this.api.hap.Characteristic.InputDeviceType, input.inputDeviceType);
 
+      // Limpiamos los listeners anteriores para evitar el error "MaxListenersExceededWarning" en HB 2.0
+      InputService.getCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState).removeAllListeners('get');
       InputService.getCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState).onGet(() => {
         const inputs = this.accessory.context.config.tvCache[input.type][input.origin];
         return inputs.visibility || 0;
       });
 
+      InputService.getCharacteristic(this.api.hap.Characteristic.TargetVisibilityState).removeAllListeners('get').removeAllListeners('set');
       InputService.getCharacteristic(this.api.hap.Characteristic.TargetVisibilityState)
         .onGet(() => {
           const inputs = this.accessory.context.config.tvCache[input.type][input.origin];
@@ -203,15 +206,20 @@ class Accessory {
           InputService.getCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState).updateValue(state);
         });
 
+      InputService.getCharacteristic(this.api.hap.Characteristic.ConfiguredName).removeAllListeners('set');
       InputService.getCharacteristic(this.api.hap.Characteristic.ConfiguredName).onSet(
         (name) => (this.accessory.context.config.tvCache[input.type][input.origin].inputName = name)
       );
 
       this.displayOrder.push(0x01, 0x04, identifier & 0xff, 0x00, 0x00, 0x00);
-      televisionService.addLinkedService(InputService);
+      
+      // Solo enlazamos si no está enlazado ya
+      if (!televisionService.linkedServices.includes(InputService)) {
+         televisionService.addLinkedService(InputService);
+      }
     });
 
-    //DisplayOrder
+    // DisplayOrder
     this.displayOrder.push(0x00, 0x00);
 
     televisionService.setCharacteristic(
@@ -219,12 +227,9 @@ class Accessory {
       Buffer.from(this.displayOrder).toString('base64')
     );
 
-    //Service.TelevisionSpeaker
-    let televisionSpeakerService = this.accessory.addService(
-      this.api.hap.Service.TelevisionSpeaker,
-      this.accessory.displayName,
-      'television-speaker'
-    );
+    // Service.TelevisionSpeaker
+    let televisionSpeakerService = this.accessory.getServiceById(this.api.hap.Service.TelevisionSpeaker, 'television-speaker')
+                                || this.accessory.addService(this.api.hap.Service.TelevisionSpeaker, this.accessory.displayName, 'television-speaker');
 
     televisionSpeakerService
       .setCharacteristic(this.api.hap.Characteristic.Active, this.api.hap.Characteristic.Active.ACTIVE)
@@ -232,64 +237,70 @@ class Accessory {
 
     televisionSpeakerService
       .getCharacteristic(this.api.hap.Characteristic.Mute)
+      .removeAllListeners('set')
       .onSet((state) => this.handler.setMute(state));
 
     televisionSpeakerService
       .getCharacteristic(this.api.hap.Characteristic.Volume)
+      .removeAllListeners('set')
       .onSet((state) => this.handler.setVolume(state));
 
     televisionSpeakerService
       .getCharacteristic(this.api.hap.Characteristic.VolumeSelector)
+      .removeAllListeners('set')
       .onSet((state) => this.handler.setVolumeSelector(state));
 
-    //Custom Speaker
+    // Custom Speaker
     if (this.accessory.context.config.speaker.active) {
       this.accessory.context.speakerMute = true;
       this.accessory.context.speakerVolume = 0;
 
       let speakerType = this.accessory.context.config.speaker.accType;
+      let speakerService;
 
       if (speakerType === 'switch') {
-        let speakerService = this.accessory.addService(
-          this.api.hap.Service.Switch,
-          `${this.accessory.displayName} Speaker`,
-          'speaker'
-        );
+        speakerService = this.accessory.getServiceById(this.api.hap.Service.Switch, 'speaker')
+                      || this.accessory.addService(this.api.hap.Service.Switch, `${this.accessory.displayName} Speaker`, 'speaker');
 
         speakerService
           .getCharacteristic(this.api.hap.Characteristic.On)
+          .removeAllListeners('set')
           .onSet((state) => this.handler.setMute(state, true));
-      } else if (speakerType === 'fan') {
-        let speakerService = this.accessory.addService(
-          this.api.hap.Service.Fanv2,
-          `${this.accessory.displayName} Speaker`,
-          'speaker'
-        );
 
-        speakerService.addCharacteristic(this.api.hap.Characteristic.RotationSpeed);
+      } else if (speakerType === 'fan') {
+        speakerService = this.accessory.getServiceById(this.api.hap.Service.Fanv2, 'speaker')
+                      || this.accessory.addService(this.api.hap.Service.Fanv2, `${this.accessory.displayName} Speaker`, 'speaker');
+
+        if (!speakerService.testCharacteristic(this.api.hap.Characteristic.RotationSpeed)) {
+           speakerService.addCharacteristic(this.api.hap.Characteristic.RotationSpeed);
+        }
 
         speakerService
           .getCharacteristic(this.api.hap.Characteristic.Active)
+          .removeAllListeners('set')
           .onSet((state) => this.handler.setMute(state, true));
 
         speakerService
           .getCharacteristic(this.api.hap.Characteristic.RotationSpeed)
+          .removeAllListeners('set')
           .onSet((state) => this.handler.setVolume(state));
-      } else {
-        let speakerService = this.accessory.addService(
-          this.api.hap.Service.Lightbulb,
-          `${this.accessory.displayName} Speaker`,
-          'speaker'
-        );
 
-        speakerService.addCharacteristic(this.api.hap.Characteristic.Brightness);
+      } else { // lightbulb
+        speakerService = this.accessory.getServiceById(this.api.hap.Service.Lightbulb, 'speaker')
+                      || this.accessory.addService(this.api.hap.Service.Lightbulb, `${this.accessory.displayName} Speaker`, 'speaker');
+
+        if (!speakerService.testCharacteristic(this.api.hap.Characteristic.Brightness)) {
+            speakerService.addCharacteristic(this.api.hap.Characteristic.Brightness);
+        }
 
         speakerService
           .getCharacteristic(this.api.hap.Characteristic.On)
+          .removeAllListeners('set')
           .onSet((state) => this.handler.setMute(state, true));
 
         speakerService
           .getCharacteristic(this.api.hap.Characteristic.Brightness)
+          .removeAllListeners('set')
           .onSet((state) => this.handler.setVolume(state));
       }
     }
