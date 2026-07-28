@@ -586,7 +586,15 @@ class Handler {
     if (err && err.code === 'APIERROR') {
       logger.debug(err.message, accessoryName);
     } else {
-      if (err.title === 'No Response' || err.code === 'EHOSTUNREACH') {
+      // @seydx/bravia sometimes double-wraps network errors (new Error(err) in service.js#describe),
+      // which drops err.code/err.title and leaves only the original message text.
+      const unreachable =
+        err.title === 'No Response' ||
+        err.code === 'EHOSTUNREACH' ||
+        err.code === 'ETIMEDOUT' ||
+        /ETIMEDOUT|EHOSTUNREACH|ECONNREFUSED/.test(err.message || '');
+
+      if (unreachable) {
         if (this.accessory.context.config.oldModel) {
           logger.debug('Old tv model - Warnings are ignored.');
         } else {
