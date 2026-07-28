@@ -1,5 +1,20 @@
 # Changelog
 
+# v1.1.8 - 2026-07-28
+
+## Bugfixes
+- Fixed a false-positive error when turning the TV on via Wake-on-LAN. `bravia.wake()` sends the WOL packet and then redundantly calls the power-on API without waiting for the TV to boot, which failed with "power state is not STANDBY" (code 15) even though the TV was waking up fine. This specific error is now ignored instead of being logged as a failure and reverting the HomeKit state.
+
+# v1.1.7 - 2026-07-27
+
+## Bugfixes
+- Fixed `ETIMEDOUT` errors from the TV being logged as full stack traces on every polling cycle. Now treated the same as `EHOSTUNREACH` (TV unreachable/off), showing only the informational warning about enabling `wol`.
+
+# v1.1.6 - 2026-07-27
+
+## Bugfixes
+- Fixed "The write handler for the characteristic 'Active' ... didn't respond at all!" warning from Homebridge. `setActive()` now resolves the HomeKit write instantly and performs the actual power on/off call in the background, reverting the characteristic if it fails.
+
 # v5.0.8 - 2021-10-08
 
 ## Breaking Changes

@@ -161,10 +161,21 @@ class Handler {
           this.changeSpeakerAccessory(mute, volume);
         }
       } catch (err) {
-        this.handleError(this.accessory.displayName, err, 'An error occured during setting televion state!');
+        // When "wol" is used, bravia.wake() sends the WOL packet and then also calls the
+        // setPowerStatus API without waiting for the TV to finish booting. Since the TV is
+        // usually already leaving standby at that point, the API call fails redundantly with
+        // "power state is not STANDBY" (code 15). The WOL packet itself already did the job,
+        // so this specific error is not a real failure.
+        const redundantWakeError = state && (err.code === 15 || /power state is not standby/i.test(err.message || ''));
 
-        // Revert the characteristic to the TV's actual state since the change failed
-        this.getTelevisionState();
+        if (redundantWakeError) {
+          logger.debug('TV already leaving standby via WOL, ignoring redundant power-on error.', this.accessory.displayName);
+        } else {
+          this.handleError(this.accessory.displayName, err, 'An error occured during setting televion state!');
+
+          // Revert the characteristic to the TV's actual state since the change failed
+          this.getTelevisionState();
+        }
       } finally {
         this.accessory.context.busy = false;
       }
