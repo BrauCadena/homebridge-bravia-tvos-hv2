@@ -133,30 +133,42 @@ class Handler {
     }
   }
 
-  async setActive(state) {
-    try {
-      this.accessory.context.busy = true;
-      logger.info(state ? 'ON' : 'OFF', this.accessory.displayName);
+  setActive(state) {
+    logger.info(state ? 'ON' : 'OFF', this.accessory.displayName);
 
-      if (state) {
-        await this.bravia.wake();
-      } else {
-        await this.bravia.exec('system', 'setPowerStatus', '1.0', {
-          status: false,
-        });
+    /*
+     * Waking the TV (WOL/cold boot) or powering it off can take longer than
+     * HomeKit's write-response timeout. Resolve the characteristic write
+     * immediately and perform the actual power action afterwards, same as
+     * the "macros" case in setActiveIdentifier().
+     */
+    setTimeout(async () => {
+      try {
+        this.accessory.context.busy = true;
+
+        if (state) {
+          await this.bravia.wake();
+        } else {
+          await this.bravia.exec('system', 'setPowerStatus', '1.0', {
+            status: false,
+          });
+        }
+
+        if (this.accessory.context.config.speaker.active) {
+          const mute = state ? this.accessory.context.speakerMute : true;
+          const volume = state ? this.accessory.context.speakerVolume : 0;
+
+          this.changeSpeakerAccessory(mute, volume);
+        }
+      } catch (err) {
+        this.handleError(this.accessory.displayName, err, 'An error occured during setting televion state!');
+
+        // Revert the characteristic to the TV's actual state since the change failed
+        this.getTelevisionState();
+      } finally {
+        this.accessory.context.busy = false;
       }
-
-      if (this.accessory.context.config.speaker.active) {
-        const mute = state ? this.accessory.context.speakerMute : true;
-        const volume = state ? this.accessory.context.speakerVolume : 0;
-
-        this.changeSpeakerAccessory(mute, volume);
-      }
-    } catch (err) {
-      this.handleError(this.accessory.displayName, err, 'An error occured during setting televion state!');
-    } finally {
-      this.accessory.context.busy = false;
-    }
+    }, 1);
   }
 
   async setActiveIdentifier(value) {
