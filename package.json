@@ -1,6 +1,6 @@
 {
   "name": "homebridge-bravia-tvos-hv2",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "Custom version of Bravia plugin for Homebridge v2",
   "displayName": "Homebridge Bravia TVOS",
   "main": "index.js",
