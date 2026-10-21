@@ -85,18 +85,33 @@ class Handler {
           this.accessory.context.speakerMute = mute;
           this.accessory.context.speakerVolume = volume;
         } else {
-          logger.warn(
+          // The custom speaker is opt-in; without it, the output is only used to fill the TelevisionSpeaker tile
+          const level = this.accessory.context.config.speaker.active ? 'warn' : 'debug';
+
+          logger[level](
             `Defined speaker output "${target}" not found! Can not update speaker state/volume!`,
             `${this.accessory.displayName} Speaker`
           );
-          logger.warn(
+          logger[level](
             `Available speaker outputs: ${availableTargets.toString()}`,
             `${this.accessory.displayName} Speaker`
           );
         }
       }
 
-      this.changeSpeakerAccessory(mute, volume);
+      this.accessory
+        .getServiceById(this.api.hap.Service.TelevisionSpeaker, 'television-speaker')
+        .getCharacteristic(this.api.hap.Characteristic.Mute)
+        .updateValue(mute);
+
+      this.accessory
+        .getServiceById(this.api.hap.Service.TelevisionSpeaker, 'television-speaker')
+        .getCharacteristic(this.api.hap.Characteristic.Volume)
+        .updateValue(volume);
+
+      if (this.accessory.context.config.speaker.active) {
+        this.changeSpeakerAccessory(mute, volume);
+      }
     } catch (err) {
       this.handleError(`${this.accessory.displayName} Speaker`, err, 'An error occured during getting speaker state!');
     }
@@ -581,10 +596,7 @@ class Handler {
       logger.debug('Polling API...', this.accessory.displayName);
 
       await this.getTelevisionState();
-
-      if (this.accessory.context.config.speaker.active) {
-        await this.getSpeakerState();
-      }
+      await this.getSpeakerState();
     } else {
       logger.debug('Skip polling API, Television is busy', this.accessory.displayName);
     }

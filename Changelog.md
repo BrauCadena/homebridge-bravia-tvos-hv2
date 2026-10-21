@@ -1,5 +1,13 @@
 # Changelog
 
+# v1.1.9 - 2026-10-21
+
+## Other Changes
+- Plugin display name in Homebridge is now "Homebridge Bravia TVOS" (the npm package name `homebridge-bravia-tvos-hv2` is unchanged).
+
+## Bugfixes
+- The TV speaker tile in Homebridge/Home no longer sits at 0%. The polling now reads the real volume and mute state from the TV and publishes it to the `TelevisionSpeaker` service, even when the optional custom speaker (`speaker.active`) is not configured.
+
 # v1.1.8 - 2026-07-28
 
 ## Bugfixes
